@@ -54,6 +54,8 @@ def direct_link_generator(link):
         return onedrive(link)
     elif 'pixeldrain.com' in domain:
         return pixeldrain(link)
+    elif 'qiwi.gg' in domain:
+        return qiwi(link)
     elif 'racaty' in domain:
         return racaty(link)
     elif '1fichier.com' in domain:
@@ -295,6 +297,27 @@ def pixeldrain(url):
     else:
         info_link = f"https://pixeldrain.com/api/file/{file_id}/info"
         dl_link = f"https://pixeldrain.com/api/file/{file_id}?download"
+    with create_scraper() as session:
+        try:
+            resp = session.get(info_link).json()
+        except Exception as e:
+            raise DirectDownloadLinkException(f"ERROR: {e.__class__.__name__}")
+    if resp["success"]:
+        return dl_link
+    else:
+        raise DirectDownloadLinkException(
+            f"ERROR: Cant't download due {resp['message']}.")
+
+def qiwi(url):
+    """ Based on https://github.com/yash-dk/TorToolkit-Telegram """
+    url = url.strip("/ ")
+    file_id = url.split("/")[-1]
+    if url.split("/")[-1] :
+        info_link = f"https://qiwi.gg/file/{file_id}"
+        dl_link = f"https://spyderrock.com/{file_id}.mp4"
+    else:
+        info_link = f"https://qiwi.gg/file/{file_id}"
+        dl_link = f"https://spyderrock.com/{file_id}.zip"
     with create_scraper() as session:
         try:
             resp = session.get(info_link).json()
